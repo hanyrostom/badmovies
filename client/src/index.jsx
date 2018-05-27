@@ -4,6 +4,7 @@ import $ from 'jquery';
 // import AnyComponent from './components/filename.jsx'
 import Search from './components/Search.jsx'
 import Movies from './components/Movies.jsx'
+import axios from 'axios'
 
 class App extends React.Component {
   constructor(props) {
@@ -12,6 +13,7 @@ class App extends React.Component {
       movies: [{deway: "movies"}],
       favorites: [{deway: "favorites"}],
       showFaves: false,
+      genres: '12'
     };
     
     // you might have to do something important here!
@@ -21,19 +23,45 @@ class App extends React.Component {
     this.swapFavorites = this.swapFavorites.bind(this);
   }
 
-  getMovies() {
-    // make an axios request to your server on the GET SEARCH endpoint
+  componentDidMount(){
+   this.getMovies();
+
   }
 
-  saveMovie() {
+  getMovies() {
+    // make an axios request to your server on the GET SEARCH endpoint
+     axios.get(`/search`,{
+        params: {
+          id : this.state.genre
+        }
+     }).then((response)=>{
+      //  console.log('this',this)
+      //  console.log('then response',response.data);//array of movie objects
+       this.setState({
+         movies: response.data
+       },function(){
+         console.log('state:',this.state)
+       })
+     })
+  }
+
+  saveMovie(movie) {
     // same as above but do something diff
+    console.log('e',movie)
+    axios.post('/favorites',{
+      params:{
+        movie
+      }
+    }).then((response)=>{
+      console.log('then response',response.data);
+    })
   }
 
   deleteMovie() {
     // same as above but do something diff
   }
 
-  swapFavorites() {
+  swapFavorites(){
   //dont touch
     this.setState({
       showFaves: !this.state.showFaves
@@ -47,7 +75,7 @@ class App extends React.Component {
         
         <div className="main">
           <Search swapFavorites={this.swapFavorites} showFaves={this.state.showFaves}/>
-          <Movies movies={this.state.showFaves ? this.state.favorites : this.state.movies} showFaves={this.state.showFaves}/>
+          <Movies movies={this.state.showFaves ? this.state.favorites : this.state.movies} showFaves={this.state.showFaves} handleClick={this.saveMovie}/>
         </div>
       </div>
     );

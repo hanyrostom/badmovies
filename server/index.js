@@ -2,7 +2,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var request = require('request')
 var app = express();
-
+const { API_KEY } = require('../server/config.js');
 var apiHelpers = require('./apiHelpers.js');
 
 app.use(bodyParser.json());
@@ -10,11 +10,20 @@ app.use(bodyParser.json());
 // Due to express, when you load the page, it doesn't make a get request to '/', it simply serves up the dist folder
 app.use(express.static(__dirname + '/../client/dist'));
 
-app.get('/search', function(req, res) {
-    // get the search genre     
-
+app.get('/search', function(req, response) {
+    // get the search genre  
+    var genreID = req.query.id;
+    console.log('id>>>?',req.query.id)   
+//https://api.themoviedb.org/3/discover/movie?api_key=57cf780d13cec3b6d202cdfa2b5988fb&language=en-US&sort_by=popularity.asc&include_adult=true&include_video=false&page=1&with_genres=28
     // https://www.themoviedb.org/account/signup
-
+    request(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&language=en-US&sort_by=popularity.asc&include_adult=true&include_video=false&page=1&with_genres=${genreID}`,function(err,res,body){
+        if(err) console.error(err);
+        else {
+            console.log('statusCode:', res.statusCode)
+            // console.log(JSON.parse(body).results)
+            response.send(JSON.parse(body).results);
+        }
+    })
     // use this endpoint to search for movies by genres, you will need an API key
 
     // https://api.themoviedb.org/3/discover/movie
@@ -30,7 +39,7 @@ app.get('/genres', function(req, res) {
     // send back
 });
 
-app.post('/save', function(req, res) {
+app.post('/favorites', function(req, res) {
 
 });
 
