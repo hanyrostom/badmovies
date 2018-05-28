@@ -2,6 +2,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var request = require('request')
 var app = express();
+var {getAllFavorites,saveFavorite,deleteFavorite} = require('./database.js')
 const { API_KEY } = require('../server/config.js');
 var apiHelpers = require('./apiHelpers.js');
 
@@ -19,7 +20,7 @@ app.get('/search', function(req, response) {
     request(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&language=en-US&sort_by=popularity.asc&include_adult=true&include_video=false&page=1&with_genres=${genreID}`,function(err,res,body){
         if(err) console.error(err);
         else {
-            console.log('statusCode:', res.statusCode)
+            // console.log('statusCode:', res.statusCode)
             // console.log(JSON.parse(body).results)
             response.send(JSON.parse(body).results);
         }
@@ -31,21 +32,58 @@ app.get('/search', function(req, response) {
     // and sort them by horrible votes using the search parameters in the API
 });
 
-app.get('/genres', function(req, res) {
-    // make an axios request to get the list of official genres
+// app.get('/genres', function(req, res) {
+//     // make an axios request to get the list of official genres
     
-    // use this endpoint, which will also require your API key: https://api.themoviedb.org/3/genre/movie/list
+//     // use this endpoint, which will also require your API key: https://api.themoviedb.org/3/genre/movie/list
 
-    // send back
-});
+//     // send back
+// });
+
+app.post('/delete',function(req,res){
+    // console.log('About to delete:',req.body.movie)
+    deleteFavorite(req.body.movie.id,function(err,result){
+            
+            if(err) console.error(err);
+            
+                getAllFavorites((err, result)=>{//send the favorites array of movie objects back
+                    if(err) console.error('ERROR retrieving allFaves', err);
+                    else {
+                        // console.log('result from db', result)
+                        res.send(result)
+                        }
+                })
+        });
+})
 
 app.post('/favorites', function(req, res) {
-
+    // console.log('brownies',req.body.movie);
+    if(!req.body.movie){
+        getAllFavorites((err, result)=>{//send the favorites array of movie objects back
+                if(err) console.error('ERROR retrieving allFaves', err);
+                else {
+                    // console.log('result from db', result)
+                    res.send(result)
+                    }
+            })
+    }else{
+        saveFavorite(req.body.movie,function(err,result){
+            if(err) console.error(err);
+            
+                getAllFavorites((err, result)=>{//send the favorites array of movie objects back
+                    if(err) console.error('ERROR retrieving allFaves', err);
+                    else {
+                        // console.log('result from db', result)
+                        res.send(result)
+                        }
+                })
+        });
+    }
 });
 
-app.post('/delete', function(req, res) {
+// app.post('/delete', function(req, res) {
 
-});
+// });
 
 app.listen(3000, function() {
   console.log('listening on port 3000!');

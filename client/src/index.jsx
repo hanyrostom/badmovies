@@ -10,10 +10,10 @@ class App extends React.Component {
   constructor(props) {
   	super(props)
   	this.state = {
-      movies: [{deway: "movies"}],
-      favorites: [{deway: "favorites"}],
+      movies: [],
+      favorites: [],
       showFaves: false,
-      genres: '12'
+      // genre: '12'
     };
     
     // you might have to do something important here!
@@ -23,24 +23,25 @@ class App extends React.Component {
     this.swapFavorites = this.swapFavorites.bind(this);
   }
 
-  componentDidMount(){
-   this.getMovies();
+  // componentDidMount(){
+  //  this.getMovies(this.state.genre);
+  //  this.saveMovie();
 
-  }
+  // }
 
-  getMovies() {
+  getMovies(id) {
     // make an axios request to your server on the GET SEARCH endpoint
+    
+    console.log('id->>',id);
      axios.get(`/search`,{
         params: {
-          id : this.state.genre
+          id 
         }
      }).then((response)=>{
       //  console.log('this',this)
       //  console.log('then response',response.data);//array of movie objects
        this.setState({
          movies: response.data
-       },function(){
-         console.log('state:',this.state)
        })
      })
   }
@@ -49,16 +50,32 @@ class App extends React.Component {
     // same as above but do something diff
     console.log('e',movie)
     axios.post('/favorites',{
-      params:{
         movie
       }
-    }).then((response)=>{
-      console.log('then response',response.data);
+      )
+    .then((response)=>{
+      console.log('saved = ',response.data);
+      this.setState({
+      favorites: response.data
+      });
     })
+    
   }
 
-  deleteMovie() {
+  deleteMovie(movie) {
+    // console.log('Hello',movie)
     // same as above but do something diff
+    axios.post('/delete',{
+        movie
+      }
+      )
+    .then((response)=>{
+      // console.log('deleted! faves= ',response.data);
+      this.setState({
+      favorites: response.data
+      });
+    })
+
   }
 
   swapFavorites(){
@@ -74,8 +91,8 @@ class App extends React.Component {
         <header className="navbar"><h1>Bad Movies</h1></header> 
         
         <div className="main">
-          <Search swapFavorites={this.swapFavorites} showFaves={this.state.showFaves}/>
-          <Movies movies={this.state.showFaves ? this.state.favorites : this.state.movies} showFaves={this.state.showFaves} handleClick={this.saveMovie}/>
+          <Search saveMovies={this.saveMovie} swapFavorites={this.swapFavorites} showFaves={this.state.showFaves} handleClick={this.getMovies}/>
+          <Movies movies={this.state.showFaves ? this.state.favorites : this.state.movies} showFaves={this.state.showFaves} handleClick={this.state.showFaves ? this.deleteMovie : this.saveMovie}/>
         </div>
       </div>
     );

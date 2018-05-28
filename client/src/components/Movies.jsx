@@ -12,32 +12,34 @@ class Movies extends React.Component {
   // If you're currently showing the fave list, delete the movie instead
   // You can tell which list is currently being rendered based on whether the prop "showFaves" is false (search results) or true (fave list) (within index.jsx)
 
-
-handleClick(e){
- 
-  this.props.handleClick(e)
+handleClick(movie){
+  this.props.handleClick(movie)
 }
 
 
-
-
   render() {
-
+    // console.log(this.props.movies);
+    // console.log(this.props.showFaves)
     return (
       <ul className="movies">
 
         
         {/* Make this list dynamic! */}
-            {this.props.movies.map((movie,i)=>
-        (
+            {this.props.movies.map((movie,i)=>{
+              console.log({ movie });
+              {/*console.log('movie>>',movie)*/}
+              var poster = this.props.showFaves? movie.poster : movie.poster_path;
+              var year = this.props.showFaves? movie.year : Number(movie.release_date.slice(0,4));
+              
+        return(
           <li key={i} className="movie_item" onClick={()=>this.handleClick(movie)} >
-              <img src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} />
+              <img src={`https://image.tmdb.org/t/p/w500${poster}`} />
               <div className="movie_description">
                 <h2>{movie.title}</h2>
                 <section className="movie_details">
                   <div className="movie_year">
                     <span className="title">Year</span>
-                    <span>{movie.release_date ? movie.release_date.slice(0,4) : null}</span>
+                    <span>{year}</span>
                   </div>
                   <div className="movie_rating">
                     <span className="title">Rating</span>
@@ -46,10 +48,10 @@ handleClick(e){
                 </section>
               </div>
             </li>
-        )
+        )}
   )}
 
-
+            
 
 
       </ul>
